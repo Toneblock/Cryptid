@@ -6,7 +6,7 @@
 --- MOD_DESCRIPTION: Adds unbalanced ideas to Balatro.
 --- BADGE_COLOUR: 708b91
 --- DEPENDENCIES: [Talisman]
---- VERSION: 0.4.3c
+--- VERSION: 0.4.3d
 
 ----------------------------------------------
 ------------MOD CODE -------------------------
@@ -364,14 +364,18 @@ for _, file in ipairs(files) do
       if Cryptid_config[curr_obj.name] == nil then Cryptid_config[curr_obj.name] = true end
       if Cryptid_config[curr_obj.name] then
           if curr_obj.init then curr_obj:init() end
-          for _, item in ipairs(curr_obj.items) do
-              item.discovered = true
-              if SMODS[item.object_type] then
-                SMODS[item.object_type](item)
-              else
-                print("Error loading item "..item.key.." of unknown type "..item.object_type)
-              end
-          end
+          if not curr_obj.items then
+            print("Warning: "..file.." has no items")
+          else
+            for _, item in ipairs(curr_obj.items) do
+                item.discovered = true
+                if SMODS[item.object_type] then
+                    SMODS[item.object_type](item)
+                else
+                    print("Error loading item "..item.key.." of unknown type "..item.object_type)
+                end
+            end
+         end
       end
     end
 end
@@ -408,71 +412,72 @@ if not SpectralPack then
     end
   end
   SpectralPack[#SpectralPack+1] = UIBox_button{ label = {"Cryptid"}, button = "cryptidMenu", colour = G.C.DARK_EDITION, minw = 5, minh = 0.7, scale = 0.6}
+  local cryptidTabs = {
+    {
+        label = "Features",
+        chosen = true,
+        tab_definition_function = function()
+            cry_nodes = {{n=G.UIT.R, config={align = "cm"}, nodes={
+                {n=G.UIT.O, config={object = DynaText({string = "Select features to enable (applies on game restart):", colours = {G.C.WHITE}, shadow = true, scale = 0.4})}},
+              }}}
+            left_settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
+            right_settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
+            for k, _ in pairs(Cryptid_config) do
+                if k ~= "Cryptid" then
+                    if #right_settings.nodes < #left_settings.nodes then
+                        right_settings.nodes[# right_settings.nodes+1] = create_toggle({label = k, ref_table = Cryptid_config, ref_value = k})
+                    else
+                        left_settings.nodes[#left_settings.nodes+1] = create_toggle({label = k, ref_table = Cryptid_config, ref_value = k})
+                    end
+                end
+            end
+            config = {n=G.UIT.R, config={align = "tm", padding = 0}, nodes={left_settings,right_settings}}
+            cry_nodes[#cry_nodes+1] = config
+            return {
+            n = G.UIT.ROOT,
+            config = {
+                emboss = 0.05,
+                minh = 6,
+                r = 0.1,
+                minw = 10,
+                align = "cm",
+                padding = 0.2,
+                colour = G.C.BLACK
+            },
+            nodes = cry_nodes
+        }
+        end
+    },
+    {
+        label = "Options",
+        tab_definition_function = function()
+            cry_nodes = {{n=G.UIT.R, config={align = "cm"}, nodes={
+                --{n=G.UIT.O, config={object = DynaText({string = "", colours = {G.C.WHITE}, shadow = true, scale = 0.4})}},
+              }}}
+            settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
+            settings.nodes[#settings.nodes+1] = create_toggle({label = "Enable Jimball Music (Copyrighted)", ref_table = Cryptid_config.Cryptid, ref_value = "jimball_music"})
+            config = {n=G.UIT.R, config={align = "tm", padding = 0}, nodes={settings}}
+            cry_nodes[#cry_nodes+1] = config
+            return {
+            n = G.UIT.ROOT,
+            config = {
+                emboss = 0.05,
+                minh = 6,
+                r = 0.1,
+                minw = 10,
+                align = "cm",
+                padding = 0.2,
+                colour = G.C.BLACK
+            },
+            nodes = cry_nodes
+        }
+        end
+    },
+}
   G.FUNCS.cryptidMenu = function(e)
     local tabs = create_tabs({
         snap_to_nav = true,
-        tabs = {
-            {
-                label = "Features",
-                chosen = true,
-                tab_definition_function = function()
-                    cry_nodes = {{n=G.UIT.R, config={align = "cm"}, nodes={
-                        {n=G.UIT.O, config={object = DynaText({string = "Select features to enable (applies on game restart):", colours = {G.C.WHITE}, shadow = true, scale = 0.4})}},
-                      }}}
-                    left_settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
-                    right_settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
-                    for k, _ in pairs(Cryptid_config) do
-                        if k ~= "Cryptid" then
-                            if #right_settings.nodes < #left_settings.nodes then
-                                right_settings.nodes[# right_settings.nodes+1] = create_toggle({label = k, ref_table = Cryptid_config, ref_value = k})
-                            else
-                                left_settings.nodes[#left_settings.nodes+1] = create_toggle({label = k, ref_table = Cryptid_config, ref_value = k})
-                            end
-                        end
-                    end
-                    config = {n=G.UIT.R, config={align = "tm", padding = 0}, nodes={left_settings,right_settings}}
-                    cry_nodes[#cry_nodes+1] = config
-                    return {
-                    n = G.UIT.ROOT,
-                    config = {
-                        emboss = 0.05,
-                        minh = 6,
-                        r = 0.1,
-                        minw = 10,
-                        align = "cm",
-                        padding = 0.2,
-                        colour = G.C.BLACK
-                    },
-                    nodes = cry_nodes
-                }
-                end
-            },
-            {
-                label = "Options",
-                tab_definition_function = function()
-                    cry_nodes = {{n=G.UIT.R, config={align = "cm"}, nodes={
-                        --{n=G.UIT.O, config={object = DynaText({string = "", colours = {G.C.WHITE}, shadow = true, scale = 0.4})}},
-                      }}}
-                    settings = {n=G.UIT.C, config={align = "tl", padding = 0.05}, nodes={}}
-                    settings.nodes[#settings.nodes+1] = create_toggle({label = "Enable Jimball Music (Copyrighted)", ref_table = Cryptid_config.Cryptid, ref_value = "jimball_music"})
-                    config = {n=G.UIT.R, config={align = "tm", padding = 0}, nodes={settings}}
-                    cry_nodes[#cry_nodes+1] = config
-                    return {
-                    n = G.UIT.ROOT,
-                    config = {
-                        emboss = 0.05,
-                        minh = 6,
-                        r = 0.1,
-                        minw = 10,
-                        align = "cm",
-                        padding = 0.2,
-                        colour = G.C.BLACK
-                    },
-                    nodes = cry_nodes
-                }
-                end
-            },
-        }})
+        tabs = cryptidTabs})
     G.FUNCS.overlay_menu{
             definition = create_UIBox_generic_options({
                 back_func = "options",
@@ -481,6 +486,23 @@ if not SpectralPack then
         config = {offset = {x=0,y=10}}
     }
   end
+
+--[[SMODS.current_mod.config_tab = function()
+    return {
+        n = G.UIT.ROOT,
+        config = {
+            emboss = 0.05,
+            minh = 6,
+            r = 0.1,
+            minw = 10,
+            align = "cm",
+            padding = 0.2,
+            colour = G.C.BLACK
+        },
+        nodes = {UIBox_button{ label = {"Open Cryptid Config"}, button = "cryptidMenu", colour = G.C.DARK_EDITION, minw = 5, minh = 0.7, scale = 0.6}}
+    }
+end--]]
+SMODS.current_mod.extra_tabs = function() return cryptidTabs end
 
 -- We're modifying so much of this for Brown and Yellow Stake, Equilibrium Deck, etc. that it's fine to override...
 function create_card(_type, area, legendary, _rarity, skip_materialize, soulable, forced_key, key_append)
@@ -605,6 +627,11 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
           end
           if G.GAME.modifiers.cry_eternal_perishable_compat and G.GAME.modifiers.enable_banana and (pseudorandom('cry_banana'..(key_append or '')..G.GAME.round_resets.ante) > 0.7) then
               card.ability.banana = true
+          end
+	  if G.GAME.modifiers.cry_sticker_sheet then
+              for k, v in pairs(SMODS.Stickers) do
+                  v:set_sticker(card, true)
+              end
           end
           if G.GAME.modifiers.cry_enable_flipped_in_shop and pseudorandom('cry_flip'..(key_append or '')..G.GAME.round_resets.ante) > 0.7 then
               card.cry_flipped = true
@@ -939,6 +966,7 @@ SMODS.Atlas({
             { mipmaps = true, dpiscale = G.SETTINGS.GRAPHICS.texture_scaling })
         G[self.atlas_table][self.key_noloc or self.key] = self
         G.shared_sticker_banana = Sprite(0, 0, G.CARD_W, G.CARD_H, G[self.atlas_table][self.key_noloc or self.key], {x = 5,y = 2})
+	G.shared_sticker_pinned = Sprite(0, 0, G.CARD_W, G.CARD_H, G[self.atlas_table][self.key_noloc or self.key], {x = 5,y = 0})
     end
 })
 function Card:set_perishable(_perishable) 
