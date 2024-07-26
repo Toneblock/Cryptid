@@ -1,0 +1,1 @@
+return {["Cryptid"]={["jimball_music"]=true,},["Enhanced Decks"]=true,["More Stakes"]=true,["Vouchers"]=true,["Code Cards"]=true,["Planets"]=true,["M Jokers"]=true,["Epic Jokers"]=true,["Misc."]=true,["Challenges"]=true,["Spectrals"]=true,["Antimatter Deck"]=true,["Misc. Decks"]=true,["Exotic Jokers"]=true,["Misc. Jokers"]=true,["Blinds"]=true,}
