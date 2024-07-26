@@ -1,3 +1,4 @@
+
 --Edition code based on Bunco's Glitter Edition
 
 local mosaic_shader = {
@@ -438,6 +439,7 @@ local gambler = {
     atlas = "tag_cry",
     pos = {x=2, y=0},
     config = {type = 'new_blind_choice', odds = 4},
+    min_ante = 2,
     key = "gambler",
     loc_txt = {
         name = "Gambler's Tag",
@@ -609,7 +611,6 @@ function Card:calculate_seal(context)
         if self.config.center == G.P_CENTERS.m_cry_echo then
             if pseudorandom('echo') < G.GAME.probabilities.normal/(self.ability.extra or 2) then --hacky crash fix
                 total_repetitions = total_repetitions + self.ability.retriggers
-                sendDebugMessage("echo retrigger, total " .. tostring(total_repetitions))
             end
         end
         if self.edition and self.edition.cry_blur and not context.other_card then
@@ -617,7 +618,6 @@ function Card:calculate_seal(context)
             
             if check and check.repetitions then
                 total_repetitions = total_repetitions + check.repetitions
-                sendDebugMessage("blur retrigger, total " .. tostring(total_repetitions) .. "rank: " .. (self.base.value or 'nil') .. " suit: " .. (self.base.suit or 'nil'))
             end
         end
 
@@ -671,6 +671,13 @@ function Card:calculate_banana()
     end
     return false
 end
+
+function Card:set_banana(_banana)
+    self.ability.banana = _banana
+end
+
+function Card:set_pinned(_pinned)
+    self.pinned = _pinned
+end
         end,
         items = miscitems}
-
